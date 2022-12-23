@@ -8,6 +8,7 @@ import SignInPage from './pages/SignInPage';
 import SignUpPage from './pages/SignUpPage';
 import DashboardPage from './pages/DashboardPage';
 import AccountPage from './pages/AccountPage';
+import ProfilePage from './pages/ProfilePage';
 
 const App = () => (
   <AppServicesProvider>
@@ -21,6 +22,7 @@ const App = () => (
         <Route element={<PrivateRoute />}>
           <Route element={<DashboardPage />} path='/dashboard' />
           <Route element={<AccountPage />} path='/account/:id' />
+          <Route element={<ProfilePage />} path='/profile' />
         </Route>
       </Routes>
     </Router>

@@ -1,5 +1,4 @@
 import { FirebaseError } from 'firebase/app';
-import { useAuth } from 'reactfire';
 import { FormattedMessage } from 'react-intl';
 // components
 import { Box, HStack, Stack, Button, Text, useColorModeValue } from '@chakra-ui/react';
@@ -8,7 +7,7 @@ import { EmailInput, PasswordInput, TextInput } from '@/components/inputs';
 import Link from '@/components/link/Link';
 import GoogleButton from '../buttons/GoogleButton';
 // utils
-import { createUserWithEmailAndPassword, updateProfile, UserCredential } from 'firebase/auth';
+import { UserCredential } from 'firebase/auth';
 import * as Yup from 'yup';
 // hooks
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +15,7 @@ import useFormatMessage from '@/hooks/useFormatMessage';
 import useAppToast from '@/hooks/useAppToast';
 // constants
 import * as C from '@/constants';
+import useSignUp from '@/hooks/useSignUp';
 
 const getErrorMessageId = (error: unknown): string | null => {
   const defaultErrorMessageId = 'signUp.form.toast.error.description';
@@ -109,18 +109,16 @@ const SignUpFormComponent: SignUpFormConfig['component'] = ({ isSubmitting }) =>
 };
 
 const SignUpForm = () => {
-  const auth = useAuth();
   const navigate = useNavigate();
   const t = useFormatMessage();
   const toast = useAppToast();
+  const signUp = useSignUp();
 
   const handleSubmit: SignUpFormConfig['onSubmit'] = async (values, { setSubmitting }) => {
     try {
-      const { user } = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      const displayName = `${values.firstName} ${values.lastName}`;
-      await updateProfile(user, { displayName });
+      const user = await signUp(values.email, values.password, values.firstName, values.lastName);
       toast({
-        description: t('signUp.form.toast.success.description', { displayName }),
+        description: t('signUp.form.toast.success.description', { displayName: user.displayName }),
         status: 'success',
       });
       navigate(C.ROUTES.DASHBOARD);

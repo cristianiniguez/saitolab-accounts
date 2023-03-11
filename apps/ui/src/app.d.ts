@@ -13,3 +13,8 @@ interface Move {
   date: string;
   type: MoveType;
 }
+
+interface Preferences {
+  id: string;
+  currency: string;
+}

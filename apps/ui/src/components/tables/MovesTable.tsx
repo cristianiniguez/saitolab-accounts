@@ -22,6 +22,7 @@ import useAppToast from '@/hooks/useAppToast';
 import useAccountSummary from '@/hooks/useAccountSummary';
 // utils
 import { deleteDoc, doc } from 'firebase/firestore';
+import useFormatCurrency from '@/hooks/useFormatCurrency';
 
 type MovesTableProps = {
   account: Account;
@@ -39,6 +40,7 @@ const MovesTable: FC<MovesTableProps> = ({ account, moves, onEdit }) => {
   const firestore = useFirestore();
   const toast = useAppToast();
   const t = useFormatMessage();
+  const formatCurrency = useFormatCurrency();
   const { isOpen, onClose, onOpen } = useDisclosure();
 
   const handleDelete = async (move: Move) => {
@@ -85,6 +87,20 @@ const MovesTable: FC<MovesTableProps> = ({ account, moves, onEdit }) => {
     );
   };
 
+  const renderMoveRow = (move: Move) => {
+    const amountFormatted = formatCurrency(move.amount);
+
+    return (
+      <Tr key={move.id}>
+        <Td>{move.detail}</Td>
+        <Td>{move.date}</Td>
+        <Td isNumeric>{move.type === 'income' && amountFormatted}</Td>
+        <Td isNumeric>{move.type === 'outcome' && amountFormatted}</Td>
+        <Td>{renderMoveButtons(move)}</Td>
+      </Tr>
+    );
+  };
+
   return (
     <>
       <TableContainer bgColor='white' borderRadius='md' boxShadow='md' p={4}>
@@ -98,24 +114,14 @@ const MovesTable: FC<MovesTableProps> = ({ account, moves, onEdit }) => {
               <Th />
             </Tr>
           </Thead>
-          <Tbody>
-            {moves.map((move) => (
-              <Tr key={move.id}>
-                <Td>{move.detail}</Td>
-                <Td>{move.date}</Td>
-                <Td isNumeric>{move.type === 'income' && move.amount}</Td>
-                <Td isNumeric>{move.type === 'outcome' && move.amount}</Td>
-                <Td>{renderMoveButtons(move)}</Td>
-              </Tr>
-            ))}
-          </Tbody>
+          <Tbody>{moves.map(renderMoveRow)}</Tbody>
           {status !== 'loading' && (
             <Tfoot fontWeight='bold'>
               <Tr>
                 <Td />
                 <Td />
-                <Td isNumeric>{income}</Td>
-                <Td isNumeric>{outcome}</Td>
+                <Td isNumeric>{formatCurrency(income)}</Td>
+                <Td isNumeric>{formatCurrency(outcome)}</Td>
                 <Td />
               </Tr>
             </Tfoot>
